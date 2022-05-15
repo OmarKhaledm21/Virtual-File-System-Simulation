@@ -10,7 +10,7 @@ public abstract class IAllocator {
         return freeBlocks >= space;
     }
 
-    public abstract int allocate();
-    public abstract void deallocate();
+    public abstract int allocate(int size) throws Exception;
+    public abstract void deallocate(int address,int size);
     public abstract void printStats();
 }

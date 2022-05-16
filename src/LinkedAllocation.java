@@ -3,15 +3,17 @@ import java.util.ArrayList;
 class Block{
     int currentAddress;
     Block next;
+    ArrayList<Integer> nextIndex;
 
     public Block(int currentAddress, Block next) {
         this.currentAddress = currentAddress;
         this.next = next;
+        nextIndex = new ArrayList<>();
     }
 }
 
 public class LinkedAllocation extends IAllocator{
-    private ArrayList<Block> disk;
+//    private ArrayList<Block> disk;
     public LinkedAllocation(int N) {
         super(N);
         disk = new ArrayList<>();
@@ -63,14 +65,14 @@ public class LinkedAllocation extends IAllocator{
 
     }
 
-    public int getFreeBlockAddress(){
-        for(int i=0; i<disk.size(); i++){
-            if(disk.get(i) == null){
-                return i;
-            }
-        }
-        return -1;
-    }
+//    public int getFreeBlockAddress(){
+//        for(int i=0; i<disk.size(); i++){
+//            if(disk.get(i) == null){
+//                return i;
+//            }
+//        }
+//        return -1;
+//    }
 
     public static void main(String[] args) {}
 }

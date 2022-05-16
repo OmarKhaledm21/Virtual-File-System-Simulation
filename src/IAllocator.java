@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
 public abstract class IAllocator {
-    private int freeBlocks;
-    private int allocatedBlocks;
-    public ArrayList<Block> disk;
+    protected int freeBlocks;
+    protected int allocatedBlocks;
+    protected ArrayList<Block> disk;
 
 
     public IAllocator(int N){

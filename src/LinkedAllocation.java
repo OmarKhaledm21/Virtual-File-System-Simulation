@@ -38,7 +38,8 @@ public class LinkedAllocation extends IAllocator{
             disk.set(next_address,next_block);
             size--;
         }
-
+        freeBlocks -= size;
+        allocatedBlocks += size;
         return start_address;
     }
 
@@ -57,6 +58,8 @@ public class LinkedAllocation extends IAllocator{
             disk.set(current_address,null);
             size--;
         }
+        freeBlocks += size;
+        allocatedBlocks -= size;
     }
 
 

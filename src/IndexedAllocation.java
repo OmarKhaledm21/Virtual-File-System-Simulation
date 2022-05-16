@@ -26,6 +26,8 @@ public class IndexedAllocation extends IAllocator{
             startBlock.nextIndex.add(nextIndex);
             size--;
         }
+        freeBlocks -= size;
+        allocatedBlocks += size;
         return startIndex;
     }
 
@@ -39,6 +41,8 @@ public class IndexedAllocation extends IAllocator{
             size--;
         }
         disk.set(address, null);
+        freeBlocks += size;
+        allocatedBlocks -= size;
     }
 
     @Override

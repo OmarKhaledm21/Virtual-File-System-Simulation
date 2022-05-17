@@ -1,13 +1,29 @@
 import java.util.ArrayList;
 
 public abstract class IAllocator {
-    private int diskSpace;
-    private ArrayList<Integer> disk;
+    protected int freeBlocks;
+    protected int allocatedBlocks;
+    protected ArrayList<Block> disk;
 
-    public IAllocator(int diskSpace) {
-        this.diskSpace = diskSpace;
+
+    public IAllocator(int N){
+        freeBlocks = N;
     }
 
-    public abstract void allocate();
-    public abstract void deallocate();
+    public boolean sufficientSpaceAvailable(int space){
+        return freeBlocks >= space;
+    }
+
+    public int getFreeBlockAddress(){
+        for(int i=0; i<disk.size(); i++){
+            if(disk.get(i) == null){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public abstract int allocate(int size) throws Exception;
+    public abstract void deallocate(int address,int size);
+    public abstract void printStats();
 }

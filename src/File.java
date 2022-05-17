@@ -1,12 +1,22 @@
+import java.net.URI;
+import java.util.ArrayList;
+
 public class File {
+    private String fullPath;
     private String name;
-    private int size;
+    protected int size;
     private int address;
     
-    public File(String name, int size, int address) {
+    public File(String fullPath,String name, int size, int address) {
+        this(fullPath,size,address);
         this.setName(name);
-        this.setSize(size);
+    }
+
+    public File(String fullPath, int size, int address) {
+        this.fullPath = fullPath;
+        this.size = size;
         this.address = address;
+        this.name = Utils.getFileName(fullPath);
     }
 
     public int getAddress() {
@@ -27,5 +37,17 @@ public class File {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFullPath() {
+        return fullPath;
+    }
+
+    public void setFullPath(String fullPath) {
+        this.fullPath = fullPath;
+    }
+
+    public void setAddress(int address) {
+        this.address = address;
     }
 }

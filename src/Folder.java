@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Folder extends File {
-    private final HashMap<String, File> sub_dir;
+public class Folder extends AbstractFile {
+    private final HashMap<String, AbstractFile> sub_dir;
 
     public Folder(String fullPath,String name) {
         super(fullPath,name, 0, -1);
@@ -14,7 +14,7 @@ public class Folder extends File {
 
     }
 
-    public File getDir(String name){
+    public AbstractFile getDir(String name){
         return this.sub_dir.get(name);
     }
 
@@ -27,9 +27,15 @@ public class Folder extends File {
         sub_dir.put(file.getName(), file);
     }
 
+    public void addFolder(Folder folder){
+        sub_dir.put(folder.getName(), folder);
+    }
+
     public void remove(String fileName) {
         sub_dir.remove(fileName);
     }
 
-    public HashMap<String, File> getSub_dir(){ return sub_dir; }
+    public void deleteDirectory (){sub_dir.clear();} //TODO lesa 3aleha Sho8l
+
+    public HashMap<String, AbstractFile> getSub_dir(){ return sub_dir; }
 }

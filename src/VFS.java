@@ -72,7 +72,7 @@ public class VFS {
             for (int i = 1; i < Folders.size() - 1; i++) {
                 currentFolder = (Folder) currentFolder.getDir(Folders.get(i));
             }
-            File file = (File) currentFolder.getSub_dir().get(fileName);
+            AbstractFile file = currentFolder.getSub_dir().get(fileName);
             currentFolder.size -= file.size;
             currentFolder.remove(fileName);
             //System.out.println("File Removed");
@@ -106,6 +106,7 @@ public class VFS {
         System.out.println(vfs.pathExists("root/p2"));
         //  vfs.deleteFolder("root/p2");
         vfs.createFile("root/p2/p3.txt", 2);
+        vfs.root.getSub_dir();
         System.out.println(vfs.pathExists("root/p2/p3.txt"));
         vfs.deleteFolder("root/p2");
         vfs.deleteFile("root/p1.txt");

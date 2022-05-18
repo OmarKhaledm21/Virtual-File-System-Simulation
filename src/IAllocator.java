@@ -1,14 +1,10 @@
 import java.util.ArrayList;
 
 public abstract class IAllocator {
-    interface IBlock {
-    }
-
-    ;
+    interface IBlock { }
     protected int freeBlocks;
     protected int allocatedBlocks;
     protected ArrayList<IBlock> disk;
-
 
     public IAllocator(int N) {
         freeBlocks = N;

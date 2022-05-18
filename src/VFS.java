@@ -1,11 +1,11 @@
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class VFS {
     private final Folder root;
-    private final IAllocator allocator;
+    private IAllocator allocator;
 
     public VFS(IAllocator allocator) {
         this.root = new Folder("root/", "root");
@@ -123,14 +123,23 @@ public class VFS {
         }
     }
 
+    public void fileWriter() throws IOException {
+        int total_disk_size = this.allocator.freeBlocks + this.allocator.allocatedBlocks;
+        FileWriter writer = new FileWriter(Utils.fileLocation);
+        if(this.allocator instanceof LinkedAllocation) {
+            writer.write("linked_allocation\n");
+        }else{
+            writer.write("indexed_allocation\n");
+        }
+        writer.write("disk_size:"+total_disk_size+"\n");
+        writer.close();
+        fileWriter(this.root);
+    }
+
     public void fileWriter(AbstractFile root) throws IOException {
         if(root instanceof Folder){
             Folder folder = (Folder) root;
-            if (folder==this.root){
-                FileWriter fileWriter = new FileWriter(Utils.fileLocation);
-                fileWriter.write("");
-                fileWriter.close();
-            }
+
             for(var child: folder.getSub_dir().entrySet()){
                 fileWriter(child.getValue());
             }
@@ -140,9 +149,24 @@ public class VFS {
         }
     }
 
+    public void fileReader() throws IOException {
+        FileInputStream file_reader = new FileInputStream(Utils.fileLocation);
+        Scanner reader = new Scanner(file_reader);
+        String allocation_method = reader.next();
+        String total_disk_size_line = reader.next();
+        String disk_size_filter = total_disk_size_line.substring(total_disk_size_line.indexOf(":")+1);
+
+        int disk_size = Integer.parseInt(disk_size_filter);
+        if(allocation_method.equals("linked_allocation")){
+            this.allocator = new LinkedAllocation(disk_size);
+        }else{
+            this.allocator = new IndexedAllocation(disk_size);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
 
-        VFS vfs = new VFS(new IndexedAllocation(20));
+        VFS vfs = new VFS(new LinkedAllocation(20));
         vfs.createFile("root/p1.txt", 3);
         vfs.createFile("root/p2.txt", 4);
         vfs.createFolder("root/p3f");
@@ -165,6 +189,7 @@ public class VFS {
         //vfs.deleteFolder("root/p3f");
         vfs.root.ls();
         vfs.displayDiskStatus();
-        vfs.fileWriter(vfs.root);
+        vfs.fileWriter();
+        vfs.fileReader();
     }
 }

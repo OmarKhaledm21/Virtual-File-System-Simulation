@@ -55,6 +55,8 @@ public abstract class IAllocator {
 
     public abstract void deallocate(int address, int size);
 
+    public abstract void writeUtil(Object[] obj);
+
     public void displayDiskStatus() {
         System.out.println("Empty space left = " + this.freeBlocks);
         System.out.println("Allocated space = " + this.allocatedBlocks);

@@ -1,4 +1,8 @@
-linked_allocation
-root
- f1
-  f2.txt
+root/p2.txt 3
+3 4 5 6 
+root/p3f/pxy/zip.folder 7
+7 8 
+root/p3f/p22.txt 9
+9 10 11 12 
+root/p1edit.txt 0
+0 1 2 

@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Hashtable;
 
 public class Folder extends AbstractFile {
     private final HashMap<String, AbstractFile> sub_dir;
@@ -43,7 +44,12 @@ public class Folder extends AbstractFile {
             AbstractFile file = sub_dir.get(fileName);
             if(file instanceof File) {
                 size_address_pair.put(file.getAddress(),file.getFileSize());
-            }else{}
+            }else if (file instanceof Folder){
+                HashMap<Integer, Integer> subDir_size_address = ((Folder) file).deleteDirectory();
+                for (Integer key : subDir_size_address.keySet()){
+                    size_address_pair.put(key,subDir_size_address.get(key));
+                }
+            }
         }
 
         sub_dir.clear();

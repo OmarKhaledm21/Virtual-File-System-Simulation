@@ -21,4 +21,7 @@ public class File extends AbstractFile {
     public ArrayList<IAllocator.IBlock> getBlocks() {
         return blocks;
     }
+    public Object[] pathAndBlocks(){
+        return new Object[]{this.getFullPath(),this.getBlocks()};
+    }
 }

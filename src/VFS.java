@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -121,6 +123,23 @@ public class VFS {
         }
     }
 
+    public void fileWriter(AbstractFile root) throws IOException {
+        if(root instanceof Folder){
+            Folder folder = (Folder) root;
+            if (folder==this.root){
+                FileWriter fileWriter = new FileWriter(Utils.fileLocation);
+                fileWriter.write("");
+                fileWriter.close();
+            }
+            for(var child: folder.getSub_dir().entrySet()){
+                fileWriter(child.getValue());
+            }
+        }else if(root instanceof File){
+            Object[] writer = new Object[]{root.getFullPath(),((File) root).getBlocks()};
+            this.allocator.writeUtil(writer);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
 
         VFS vfs = new VFS(new IndexedAllocation(20));
@@ -143,8 +162,9 @@ public class VFS {
         f.ls();
         vfs.root.ls();
 
-        vfs.deleteFolder("root/p3f");
+        //vfs.deleteFolder("root/p3f");
         vfs.root.ls();
         vfs.displayDiskStatus();
+        vfs.fileWriter(vfs.root);
     }
 }

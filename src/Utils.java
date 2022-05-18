@@ -1,4 +1,7 @@
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,17 +18,7 @@ public class Utils {
     }
 
 
-    static  public Object[] readUtil(){
 
-
-        return null;
-    }
-
-    static  public Object[] writeUtil(){
-
-
-        return null;
-    }
 
 
 }

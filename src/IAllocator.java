@@ -51,7 +51,7 @@ public abstract class IAllocator {
         return allocated_block_ind;
     }
 
-    public abstract int allocate(int size) throws Exception;
+    public abstract Object[] allocate(int size) throws Exception;
 
     public abstract void deallocate(int address, int size);
 

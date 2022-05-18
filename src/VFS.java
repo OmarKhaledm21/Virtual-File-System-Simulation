@@ -32,9 +32,10 @@ public class VFS {
     public void createFile(String fullPath, int size) throws Exception {
         /* Allocate then path to createFile of Folder class*/
         if (!pathExists(fullPath)) {
-            int fileAddress = this.allocator.allocate(size);
+            Object[] ret = this.allocator.allocate(size);
+            int fileAddress = (int) ret[0];
             File file = new File(fullPath, size, fileAddress);
-
+            file.setBlocks((ArrayList<IAllocator.IBlock>) ret[1]);
             ArrayList<String> path = Utils.getPath(file.getFullPath());
             Folder currentFolder = root;
             for (int i = 1; i < path.size() - 1; i++) {
@@ -123,7 +124,7 @@ public class VFS {
     public static void main(String[] args) throws Exception {
 
         VFS vfs = new VFS(new IndexedAllocation(20));
-        vfs.createFile("root/p1.txt", 2);
+        vfs.createFile("root/p1.txt", 3);
         vfs.createFile("root/p2.txt", 4);
         vfs.createFolder("root/p3f");
         vfs.createFolder("root/p3f/pxy");

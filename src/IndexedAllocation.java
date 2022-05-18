@@ -2,13 +2,11 @@ import java.util.ArrayList;
 
 public class IndexedAllocation extends IAllocator {
     static class Block implements IBlock {
-        int currentAddress;
-        LinkedAllocation.Block next;
+
         ArrayList<Integer> nextIndex;
 
-        public Block(int currentAddress, LinkedAllocation.Block next) {
-            this.currentAddress = currentAddress;
-            this.next = next;
+        public Block() {
+
             nextIndex = new ArrayList<>();
         }
     }
@@ -18,24 +16,27 @@ public class IndexedAllocation extends IAllocator {
     }
 
     @Override
-    public int allocate(int size) throws Exception {
+    public Object[] allocate(int size) throws Exception {
+        ArrayList<Block> blocks = new ArrayList<>();
         if (!sufficientSpaceAvailable(size)) {
             throw new Exception("No space available");
         }
         freeBlocks -= size;
         allocatedBlocks += size;
         int startIndex = getFreeBlockAddress();
-        Block startBlock = new Block(startIndex, null);
+        Block startBlock = new Block();
         disk.set(startIndex, startBlock);
+        blocks.add(startBlock);
         size--;
         while (size > 0) {
             int nextIndex = getFreeBlockAddress();
-            Block nextBlock = new Block(nextIndex, null);
+            Block nextBlock = new Block();
             disk.set(nextIndex, nextBlock);
             startBlock.nextIndex.add(nextIndex);
+            blocks.add(nextBlock);
             size--;
         }
-        return startIndex;
+        return new Object[]{startIndex,blocks};
     }
 
     @Override
@@ -53,11 +54,11 @@ public class IndexedAllocation extends IAllocator {
     }
 
 
-    public static void main(String[] args) throws Exception {
-        IndexedAllocation indexedAllocation = new IndexedAllocation(32);
-        int startIndex1 = indexedAllocation.allocate(10);
-        int startIndex2 = indexedAllocation.allocate(7);
-        indexedAllocation.deallocate(startIndex1, 10);
-        int startIndex3 = indexedAllocation.allocate(5);
-    }
+//    public static void main(String[] args) throws Exception {
+//        IndexedAllocation indexedAllocation = new IndexedAllocation(32);
+//        int startIndex1 = indexedAllocation.allocate(10);
+//        int startIndex2 = indexedAllocation.allocate(7);
+//        indexedAllocation.deallocate(startIndex1, 10);
+//        int startIndex3 = indexedAllocation.allocate(5);
+//    }
 }

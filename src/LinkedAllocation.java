@@ -17,7 +17,8 @@ public class LinkedAllocation extends IAllocator {
     }
 
     @Override
-    public int allocate(int size) throws Exception {
+    public Object[] allocate(int size) throws Exception {
+        ArrayList<Block> blocks = new ArrayList<>();
         if (!sufficientSpaceAvailable(size)) {
             throw new Exception("No space available");
         }
@@ -31,11 +32,13 @@ public class LinkedAllocation extends IAllocator {
             int next_address = getFreeBlockAddress();
             Block next_block = new Block(next_address, null);
             start.next = next_block;
+            blocks.add(start);
             start = next_block;
             disk.set(next_address, next_block);
             size--;
         }
-        return start_address;
+        blocks.add(start);
+        return new Object[]{start_address,blocks};
     }
 
     @Override
@@ -61,7 +64,5 @@ public class LinkedAllocation extends IAllocator {
     }
 
 
-    public static void main(String[] args) {
 
-    }
 }

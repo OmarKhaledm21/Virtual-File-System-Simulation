@@ -1,25 +1,19 @@
 import java.util.ArrayList;
 
-class Block{
-    int currentAddress;
-    Block next;
-    ArrayList<Integer> nextIndex;
 
-    public Block(int currentAddress, Block next) {
-        this.currentAddress = currentAddress;
-        this.next = next;
-        nextIndex = new ArrayList<>();
-    }
-}
 
 public class LinkedAllocation extends IAllocator{
-    //    private ArrayList<Block> disk;
+    static class Block implements IBlock{
+        int currentAddress;
+        Block next;
+        public Block(int currentAddress, Block next) {
+            this.currentAddress = currentAddress;
+            this.next = next;
+        }
+    }
+
     public LinkedAllocation(int N) {
         super(N);
-        disk = new ArrayList<>();
-        for(int i=0; i<N; i++){
-            disk.add(null);
-        }
     }
 
     @Override
@@ -30,6 +24,9 @@ public class LinkedAllocation extends IAllocator{
         int start_address = getFreeBlockAddress();
         Block start = new Block(start_address,null);
         disk.set(start_address,start);
+        freeBlocks -= size;
+        allocatedBlocks += size;
+        size--;
         while (size >0){
             int next_address = getFreeBlockAddress();
             Block next_block = new Block(next_address,null);
@@ -38,44 +35,69 @@ public class LinkedAllocation extends IAllocator{
             disk.set(next_address,next_block);
             size--;
         }
-        freeBlocks -= size;
-        allocatedBlocks += size;
         return start_address;
     }
 
     @Override
     public void deallocate(int start_address, int size) {
+        freeBlocks += size;
+        allocatedBlocks -= size;
+
         Block cursor = null;
         int next_address = start_address;
         while (size>0){
             int current_address = next_address;
-            cursor = disk.get(current_address);
-            if(cursor!=null) {
-                next_address = cursor.next.currentAddress;
+            cursor = (Block) disk.get(current_address);
+            if(cursor != null) {
+                disk.set(current_address,null);
+                size--;
             }else{
                 break;
             }
-            disk.set(current_address,null);
-            size--;
+            if(cursor.next!=null) {
+                next_address = cursor.next.currentAddress;
+            }
         }
-        freeBlocks += size;
-        allocatedBlocks -= size;
     }
-
 
     @Override
-    public void printStats() {
-
+    public void displayDiskStatus() {
+        System.out.println("Empty space left = "+this.freeBlocks);
+        System.out.println("Allocated space = "+this.allocatedBlocks);
+        System.out.println("Empty blocks are {"+ getFreeBlocksAddresses().toString() +"}");
+        System.out.println("Allocated blocks are {"+getAllocatedBlocksAddresses().toString()+"}");
     }
 
-//    public int getFreeBlockAddress(){
-//        for(int i=0; i<disk.size(); i++){
-//            if(disk.get(i) == null){
-//                return i;
-//            }
-//        }
-//        return -1;
-//    }
+    public int getFreeBlockAddress(){
+        for(int i=0; i<disk.size(); i++){
+            if(disk.get(i) == null){
+                return i;
+            }
+        }
+        return -1;
+    }
 
-    public static void main(String[] args) {}
+    public ArrayList<Integer> getFreeBlocksAddresses(){
+        ArrayList<Integer> free_block_ind = new ArrayList<>();
+        for(int i=0; i<disk.size(); i++){
+            if(disk.get(i) == null){
+                free_block_ind.add(i);
+            }
+        }
+        return free_block_ind;
+    }
+
+    public ArrayList<Integer> getAllocatedBlocksAddresses(){
+        ArrayList<Integer> allocated_block_ind = new ArrayList<>();
+        for(int i=0; i<disk.size(); i++){
+            if(disk.get(i) != null){
+                allocated_block_ind.add(i);
+            }
+        }
+        return allocated_block_ind;
+    }
+
+    public static void main(String[] args) {
+
+    }
 }

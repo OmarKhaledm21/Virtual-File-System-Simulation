@@ -1,21 +1,21 @@
 public abstract class AbstractFile {
     private String fullPath;
-    private String name;
-    protected int size;
+    private String fileName;
+    protected int fileSize;
     private int address;
 
 
 
-    public AbstractFile(String fullPath,String name, int size, int address) {
-        this(fullPath,size,address);
-        this.setName(name);
+    public AbstractFile(String fullPath, String fileName, int fileSize, int address) {
+        this(fullPath, fileSize,address);
+        this.setFileName(fileName);
     }
 
-    public AbstractFile(String fullPath, int size, int address) {
+    public AbstractFile(String fullPath, int fileSize, int address) {
         this.fullPath = fullPath;
-        this.size = size;
+        this.fileSize = fileSize;
         this.address = address;
-        this.name = Utils.getFileName(fullPath);
+        this.fileName = Utils.getFileName(fullPath);
     }
 
 
@@ -24,20 +24,20 @@ public abstract class AbstractFile {
         return address;
     }
 
-    public int getSize() {
-        return size;
+    public int getFileSize() {
+        return fileSize;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public void setFileSize(int fileSize) {
+        this.fileSize = fileSize;
     }
 
-    public String getName() {
-        return name;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getFullPath() {
@@ -50,5 +50,10 @@ public abstract class AbstractFile {
 
     public void setAddress(int address) {
         this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return fileName;
     }
 }

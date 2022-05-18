@@ -1,8 +1,9 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class VFS {
-    private Folder root;
-    private IAllocator allocator;
+    private final Folder root;
+    private final IAllocator allocator;
 
     public VFS(IAllocator allocator) {
         this.root = new Folder("root/", "root");
@@ -37,7 +38,7 @@ public class VFS {
             ArrayList<String> path = Utils.getPath(file.getFullPath());
             Folder currentFolder = root;
             for (int i = 1; i < path.size() - 1; i++) {
-                currentFolder.setSize(currentFolder.getSize() + size);
+                currentFolder.setFileSize(currentFolder.getFileSize() + size);
                 currentFolder = (Folder) currentFolder.getDir(path.get(i));
             }
             currentFolder.add(file);
@@ -73,7 +74,8 @@ public class VFS {
                 currentFolder = (Folder) currentFolder.getDir(Folders.get(i));
             }
             AbstractFile file = currentFolder.getSub_dir().get(fileName);
-            currentFolder.size -= file.size;
+            currentFolder.fileSize -= file.fileSize;
+            allocator.deallocate(file.getAddress(),file.getFileSize());
             currentFolder.remove(fileName);
             //System.out.println("File Removed");
         } else {
@@ -85,10 +87,16 @@ public class VFS {
         if (pathExists(path)) {
             ArrayList<String> Folders = Utils.getPath(path);
             Folder currentFolder = root;
+            Folder parentFolder = root;
             for (int i = 1; i < Folders.size(); i++) {
+                parentFolder = currentFolder;
                 currentFolder = (Folder) currentFolder.getDir(Folders.get(i));
             }
-            currentFolder.deleteDirectory();
+            HashMap<Integer,Integer> address_size_pairs = currentFolder.deleteDirectory();
+            for(var address : address_size_pairs.keySet()){
+                allocator.deallocate(address, address_size_pairs.get(address));
+            }
+            parentFolder.remove(currentFolder.getFileName());
             System.out.println("Folder Removed");
         } else {
             throw new Exception("File Was Not Found!");
@@ -100,16 +108,23 @@ public class VFS {
 
     public static void main(String[] args) throws Exception {
 
-        VFS vfs = new VFS(new LinkedAllocation(10));
-        vfs.createFile("root/p1.txt", 1);
-        vfs.createFolder("root/p2");
-        System.out.println(vfs.pathExists("root/p2"));
-        //  vfs.deleteFolder("root/p2");
-        vfs.createFile("root/p2/p3.txt", 2);
-        vfs.root.getSub_dir();
-        System.out.println(vfs.pathExists("root/p2/p3.txt"));
-        vfs.deleteFolder("root/p2");
+        VFS vfs = new VFS(new LinkedAllocation(14));
+        vfs.createFile("root/p1.txt", 2);
+        vfs.createFile("root/p2.txt", 4);
+        vfs.createFolder("root/p3f");
+        vfs.createFile("root/p3f/p22.txt", 4);
+
         vfs.deleteFile("root/p1.txt");
 
+        vfs.createFile("root/p1edit.txt",3);
+
+        vfs.root.ls();
+        Folder f = (Folder) vfs.root.getSub_dir().get("p3f");
+        f.ls();
+        vfs.root.ls();
+
+        vfs.deleteFolder("root/p3f");
+        vfs.root.ls();
+        vfs.allocator.displayDiskStatus();
     }
 }

@@ -1,13 +1,20 @@
 import java.util.ArrayList;
 
 public class IndexedAllocation extends IAllocator{
+    static class Block implements IBlock{
+        int currentAddress;
+        LinkedAllocation.Block next;
+        ArrayList<Integer> nextIndex;
+
+        public Block(int currentAddress, LinkedAllocation.Block next) {
+            this.currentAddress = currentAddress;
+            this.next = next;
+            nextIndex = new ArrayList<>();
+        }
+    }
 
     public IndexedAllocation(int N) {
         super(N);
-        disk = new ArrayList<>();
-        for(int i=0; i<N; i++){
-            disk.add(null);
-        }
     }
 
     @Override
@@ -33,7 +40,7 @@ public class IndexedAllocation extends IAllocator{
 
     @Override
     public void deallocate(int address, int size) {
-        Block current = disk.get(address);
+        Block current = (Block) disk.get(address);
         while (size - 1 > 0){
             int tempIndex = current.nextIndex.size();
             current.nextIndex.remove(tempIndex - 1);
@@ -46,9 +53,10 @@ public class IndexedAllocation extends IAllocator{
     }
 
     @Override
-    public void printStats() {
+    public void displayDiskStatus() {
 
     }
+
 
     public static void main(String[] args) throws Exception {
         IndexedAllocation indexedAllocation = new IndexedAllocation(32);

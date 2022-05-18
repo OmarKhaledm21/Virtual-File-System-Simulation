@@ -75,7 +75,7 @@ public class VFS {
             }
             AbstractFile file = currentFolder.getSub_dir().get(fileName);
             currentFolder.fileSize -= file.fileSize;
-            allocator.deallocate(file.getAddress(),file.getFileSize());
+            allocator.deallocate(file.getAddress(), file.getFileSize());
             currentFolder.remove(fileName);
             //System.out.println("File Removed");
         } else {
@@ -92,8 +92,8 @@ public class VFS {
                 parentFolder = currentFolder;
                 currentFolder = (Folder) currentFolder.getDir(Folders.get(i));
             }
-            HashMap<Integer,Integer> address_size_pairs = currentFolder.deleteDirectory();
-            for(var address : address_size_pairs.keySet()){
+            HashMap<Integer, Integer> address_size_pairs = currentFolder.deleteDirectory();
+            for (var address : address_size_pairs.keySet()) {
                 allocator.deallocate(address, address_size_pairs.get(address));
             }
             parentFolder.remove(currentFolder.getFileName());
@@ -108,7 +108,7 @@ public class VFS {
 
     public static void main(String[] args) throws Exception {
 
-        VFS vfs = new VFS(new LinkedAllocation(14));
+        VFS vfs = new VFS(new IndexedAllocation(14));
         vfs.createFile("root/p1.txt", 2);
         vfs.createFile("root/p2.txt", 4);
         vfs.createFolder("root/p3f");
@@ -116,7 +116,7 @@ public class VFS {
 
         vfs.deleteFile("root/p1.txt");
 
-        vfs.createFile("root/p1edit.txt",3);
+        vfs.createFile("root/p1edit.txt", 3);
 
         vfs.root.ls();
         Folder f = (Folder) vfs.root.getSub_dir().get("p3f");

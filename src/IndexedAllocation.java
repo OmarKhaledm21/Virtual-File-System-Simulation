@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
-public class IndexedAllocation extends IAllocator{
-    static class Block implements IBlock{
+public class IndexedAllocation extends IAllocator {
+    static class Block implements IBlock {
         int currentAddress;
         LinkedAllocation.Block next;
         ArrayList<Integer> nextIndex;
@@ -19,42 +19,37 @@ public class IndexedAllocation extends IAllocator{
 
     @Override
     public int allocate(int size) throws Exception {
-        if(!sufficientSpaceAvailable(size)){
+        if (!sufficientSpaceAvailable(size)) {
             throw new Exception("No space available");
         }
+        freeBlocks -= size;
+        allocatedBlocks += size;
         int startIndex = getFreeBlockAddress();
         Block startBlock = new Block(startIndex, null);
         disk.set(startIndex, startBlock);
         size--;
-        while (size > 0){
+        while (size > 0) {
             int nextIndex = getFreeBlockAddress();
             Block nextBlock = new Block(nextIndex, null);
             disk.set(nextIndex, nextBlock);
             startBlock.nextIndex.add(nextIndex);
             size--;
         }
-        freeBlocks -= size;
-        allocatedBlocks += size;
         return startIndex;
     }
 
     @Override
     public void deallocate(int address, int size) {
         Block current = (Block) disk.get(address);
-        while (size - 1 > 0){
+        freeBlocks += size;
+        allocatedBlocks -= size;
+        while (size - 1 > 0) {
             int tempIndex = current.nextIndex.size();
             current.nextIndex.remove(tempIndex - 1);
             disk.set(tempIndex, null);
             size--;
         }
         disk.set(address, null);
-        freeBlocks += size;
-        allocatedBlocks -= size;
-    }
-
-    @Override
-    public void displayDiskStatus() {
-
     }
 
 

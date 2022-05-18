@@ -103,21 +103,40 @@ public class VFS {
         }
     }
 
-    public void displayStatus() {
+    public void displayDiskStatus() {
+        this.allocator.displayDiskStatus();
+    }
+
+    public void displayDiskStructure(AbstractFile root, int level) {
+        for(int i = 0; i < level; i++)
+            System.out.print("  ");
+        System.out.println(root.getFileName());
+
+        if(root instanceof Folder){
+            Folder folder = (Folder) root;
+            for(var child: folder.getSub_dir().entrySet()){
+                displayDiskStructure(child.getValue(), level + 1);
+            }
+        }
     }
 
     public static void main(String[] args) throws Exception {
 
-        VFS vfs = new VFS(new IndexedAllocation(14));
+        VFS vfs = new VFS(new IndexedAllocation(20));
         vfs.createFile("root/p1.txt", 2);
         vfs.createFile("root/p2.txt", 4);
         vfs.createFolder("root/p3f");
+        vfs.createFolder("root/p3f/pxy");
+        vfs.createFile("root/p3f/pxy/zip.folder", 2);
+
+
         vfs.createFile("root/p3f/p22.txt", 4);
 
         vfs.deleteFile("root/p1.txt");
 
         vfs.createFile("root/p1edit.txt", 3);
 
+        vfs.displayDiskStructure(vfs.root, 0);
         vfs.root.ls();
         Folder f = (Folder) vfs.root.getSub_dir().get("p3f");
         f.ls();
@@ -125,6 +144,6 @@ public class VFS {
 
         vfs.deleteFolder("root/p3f");
         vfs.root.ls();
-        vfs.allocator.displayDiskStatus();
+        vfs.displayDiskStatus();
     }
 }

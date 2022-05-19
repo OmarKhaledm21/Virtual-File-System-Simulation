@@ -189,7 +189,7 @@ public class VFS {
              * INITIALIZE SYSTEM WITH DATA FROM DiskStructure.vfs */
             for(int i=0; i<dirs.size(); i++)
             {
-                ArrayList<Integer> addresses = Utils.getAddressesFromFile(start_end_address.get(i));
+                ArrayList<Integer> addresses = Utils.getAddressesFromFile(start_end_address.get(i)); //TODO This contains addresses of blocks for next created file
                 int dirSize = addresses.size();
                 ArrayList<String> path = Utils.getPath(dirs.get(i));
                 StringBuilder path_builder = new StringBuilder();
@@ -197,7 +197,7 @@ public class VFS {
                 for(int j=1; j<path.size(); j++){
                     path_builder.append(path.get(j));
                     if(j== path.size()-1){
-                        createFile(dirs.get(i),dirSize);
+                        createFile(dirs.get(i),dirSize); //Here you create the file pointed to by the previous TODO so u must implement func to take this seq of addresses and use it
                     }else{
                         if(!pathExists(path_builder.toString())) {
                             createFolder(path_builder.toString());

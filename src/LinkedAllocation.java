@@ -95,13 +95,16 @@ public class LinkedAllocation extends IAllocator {
         for (int i = 1; i < blocks.size() - 1; i++) {
             Block curr = new Block(blocks.get(i), null);
             prev.next = curr;
+            disk.set(prev.currentAddress,prev);
             fileBlocks.add(prev);
             prev = curr;
         }
         prev.next = new Block(blocks.get(blocks.size() - 1), null);
+        disk.set(prev.currentAddress,prev);
         fileBlocks.add(prev);
         prev = prev.next;
         fileBlocks.add(prev);
+        disk.set(prev.currentAddress,prev);
         return fileBlocks;
     }
 

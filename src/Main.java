@@ -42,43 +42,48 @@ public class Main {
         String command_buffer = null;
         boolean flag = true;
         while (flag) {
-            command_buffer = scanner.nextLine();
-            String[] commands = command_buffer.split(" ");
-            switch (commands[0].toLowerCase()) {
-                case "exit":
-                    flag = false;
-                    vfs.fileWriter();
-                    break;
-                case "createfile":
-                    vfs.createFile(commands[1], Integer.parseInt(commands[2]));
-                    break;
-                case "createfolder":
-                    vfs.createFolder(commands[1]);
-                    break;
-                case "deletefolder":
-                    vfs.deleteFolder(commands[1]);
-                    break;
-                case "deletefile":
-                    vfs.deleteFile(commands[1]);
-                    break;
-                case "displaydiskstatus":
-                    vfs.displayDiskStatus();
-                    break;
-                case "displaydiskstructure":
-                    vfs.displayDiskStructure();
-                    break;
-                default:
-                    //System.out.println("Wrong Command!");
-                    break;
+            try {
+                command_buffer = scanner.nextLine();
+                String[] commands = command_buffer.split(" ");
+                switch (commands[0].toLowerCase()) {
+                    case "exit":
+                        flag = false;
+                        vfs.fileWriter();
+                        break;
+                    case "createfile":
+                        vfs.createFile(commands[1], Integer.parseInt(commands[2]));
+                        break;
+                    case "createfolder":
+                        vfs.createFolder(commands[1]);
+                        break;
+                    case "deletefolder":
+                        vfs.deleteFolder(commands[1]);
+                        break;
+                    case "deletefile":
+                        vfs.deleteFile(commands[1]);
+                        break;
+                    case "displaydiskstatus":
+                        vfs.displayDiskStatus();
+                        break;
+                    case "displaydiskstructure":
+                        vfs.displayDiskStructure();
+                        break;
+                    default:
+                        //System.out.println("Wrong Command!");
+                        break;
+                }
+                if (!commands[0].equals("exit")) {
+                    System.out.println("Nice Now Enter One Of the Following Commands!\n" +
+                            "- CreateFile -> File Path -> File Size\n" +
+                            "- Create Folder -> Folder Path\n" +
+                            "- Delete Folder (File) -> Folder (File) Path\n" +
+                            "- DisplayDiskStructure\n" +
+                            "- DisplayDiskStatus");
+                    System.out.println("Enter exit to quit");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-            System.out.println("Nice Now Enter One Of the Following Commands!\n" +
-                    "- CreateFile -> File Path -> File Size\n" +
-                    "- Create Folder -> Folder Path\n" +
-                    "- Delete Folder (File) -> Folder (File) Path\n" +
-                    "- DisplayDiskStructure\n" +
-                    "- DisplayDiskStatus");
-            System.out.println("Enter exit to quit");
-
         }
 
     }

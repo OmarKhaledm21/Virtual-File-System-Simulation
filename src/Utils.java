@@ -3,6 +3,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Utils {
@@ -15,6 +16,14 @@ public class Utils {
     static public String getFileName(String path){
         ArrayList<String> elements = new ArrayList(List.of(path.split("/")));
         return elements.get(elements.size()-1);
+    }
+    static public ArrayList<Integer> getAddressesFromFile(String addresses){
+        ArrayList<Integer> int_addresses = new ArrayList<>();
+        for(var elem :(addresses.split(" "))){
+            int_addresses.add(Integer.parseInt(elem));
+        }
+        System.out.println(int_addresses);
+        return int_addresses;
     }
 
 

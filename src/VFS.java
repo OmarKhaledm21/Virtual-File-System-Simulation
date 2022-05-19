@@ -128,6 +128,9 @@ public class VFS {
         this.allocator.displayDiskStatus();
     }
 
+    public void displayDiskStructure(){
+        displayDiskStructure(this.root,0);
+    }
     public void displayDiskStructure(AbstractFile root, int level) {
         for (int i = 0; i < level; i++)
             System.out.print("  ");

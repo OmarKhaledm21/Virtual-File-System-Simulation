@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class VFS {
+
     private Folder root;
     private IAllocator allocator;
 
@@ -42,6 +43,23 @@ public class VFS {
             Folder currentFolder = root;
             for (int i = 1; i < path.size() - 1; i++) {
                 currentFolder.setFileSize(currentFolder.getFileSize() + size);
+                currentFolder = (Folder) currentFolder.getDir(path.get(i));
+            }
+            currentFolder.add(file);
+        }
+    }
+
+    public void manualAllocate(String fullPath, ArrayList<Integer> blocks) throws Exception {
+        if (!pathExists(fullPath)) {
+
+            File file = new File(fullPath, blocks.size(), blocks.get(0));
+
+            file.setBlocks(this.allocator.manualAllocate(blocks));
+
+            ArrayList<String> path = Utils.getPath(file.getFullPath());
+            Folder currentFolder = root;
+            for (int i = 1; i < path.size() - 1; i++) {
+                currentFolder.setFileSize(currentFolder.getFileSize() + blocks.size());
                 currentFolder = (Folder) currentFolder.getDir(path.get(i));
             }
             currentFolder.add(file);
@@ -111,13 +129,13 @@ public class VFS {
     }
 
     public void displayDiskStructure(AbstractFile root, int level) {
-        for(int i = 0; i < level; i++)
+        for (int i = 0; i < level; i++)
             System.out.print("  ");
         System.out.println(root.getFileName());
 
-        if(root instanceof Folder){
+        if (root instanceof Folder) {
             Folder folder = (Folder) root;
-            for(var child: folder.getSub_dir().entrySet()){
+            for (var child : folder.getSub_dir().entrySet()) {
                 displayDiskStructure(child.getValue(), level + 1);
             }
         }
@@ -126,25 +144,25 @@ public class VFS {
     public void fileWriter() throws IOException {
         int total_disk_size = this.allocator.freeBlocks + this.allocator.allocatedBlocks;
         FileWriter writer = new FileWriter(Utils.fileLocation);
-        if(this.allocator instanceof LinkedAllocation) {
+        if (this.allocator instanceof LinkedAllocation) {
             writer.write("linked_allocation\n");
-        }else{
+        } else {
             writer.write("indexed_allocation\n");
         }
-        writer.write("disk_size:"+total_disk_size+"\n");
+        writer.write("disk_size:" + total_disk_size + "\n");
         writer.close();
         fileWriter(this.root);
     }
 
     public void fileWriter(AbstractFile root) throws IOException {
-        if(root instanceof Folder){
+        if (root instanceof Folder) {
             Folder folder = (Folder) root;
 
-            for(var child: folder.getSub_dir().entrySet()){
+            for (var child : folder.getSub_dir().entrySet()) {
                 fileWriter(child.getValue());
             }
-        }else if(root instanceof File){
-            Object[] writer = new Object[]{root.getFullPath(),((File) root).getBlocks()};
+        } else if (root instanceof File) {
+            Object[] writer = new Object[]{root.getFullPath(), ((File) root).getBlocks()};
             this.allocator.writeUtil(writer);
         }
     }
@@ -156,7 +174,7 @@ public class VFS {
         Scanner reader = new Scanner(file_reader);
         String allocation_method = reader.nextLine();
         String total_disk_size_line = reader.nextLine();
-        String disk_size_filter = total_disk_size_line.substring(total_disk_size_line.indexOf(":")+1);
+        String disk_size_filter = total_disk_size_line.substring(total_disk_size_line.indexOf(":") + 1);
 
         int disk_size = Integer.parseInt(disk_size_filter);
 
@@ -166,18 +184,18 @@ public class VFS {
 
         ArrayList<String> dirs = new ArrayList<>();
         ArrayList<String> start_end_address = new ArrayList<>();
-        if(allocation_method.equals("linked_allocation")){ // WE START TO READ LINKED ALLOCATION FILE FORMAT
+        if (allocation_method.equals("linked_allocation")) { // WE START TO READ LINKED ALLOCATION FILE FORMAT
             this.allocator = new LinkedAllocation(disk_size);
             /**
              * READ FROM FILE ALL DIRS AND ADDRESSES*/
-            int le =2;
-            while(reader.hasNext()){
+            int le = 2;
+            while (reader.hasNext()) {
                 String dir = reader.nextLine();
-                if(le%2==0) {
+                if (le % 2 == 0) {
                     int stop = dir.indexOf(" ");
                     dir = dir.substring(0, stop);
                     dirs.add(dir);
-                }else{
+                } else {
                     start_end_address.add(dir);
                 }
                 le++;
@@ -187,19 +205,18 @@ public class VFS {
             System.out.println(start_end_address);
             /**
              * INITIALIZE SYSTEM WITH DATA FROM DiskStructure.vfs */
-            for(int i=0; i<dirs.size(); i++)
-            {
+            for (int i = 0; i < dirs.size(); i++) {
                 ArrayList<Integer> addresses = Utils.getAddressesFromFile(start_end_address.get(i)); //TODO This contains addresses of blocks for next created file
                 int dirSize = addresses.size();
                 ArrayList<String> path = Utils.getPath(dirs.get(i));
                 StringBuilder path_builder = new StringBuilder();
                 path_builder.append("root/");
-                for(int j=1; j<path.size(); j++){
+                for (int j = 1; j < path.size(); j++) {
                     path_builder.append(path.get(j));
-                    if(j== path.size()-1){
-                        createFile(dirs.get(i),dirSize); //Here you create the file pointed to by the previous TODO so u must implement func to take this seq of addresses and use it
-                    }else{
-                        if(!pathExists(path_builder.toString())) {
+                    if (j == path.size() - 1) {
+                        manualAllocate(dirs.get(i), addresses); //Here you create the file pointed to by the previous TODO so u must implement func to take this seq of addresses and use it
+                    } else {
+                        if (!pathExists(path_builder.toString())) {
                             createFolder(path_builder.toString());
 
                         }
@@ -209,16 +226,44 @@ public class VFS {
                 }
             }
 
-        }else{//TODO SAME AS THE ABOVE BUT FOR INDEXED
+        } else {//TODO SAME AS THE ABOVE BUT FOR INDEXED
             this.allocator = new IndexedAllocation(disk_size);
-            
+            ArrayList<Integer> addresses = new ArrayList<>();
+            while (reader.hasNext()) {
+                StringBuilder path_builder = new StringBuilder();
+                String line = reader.nextLine(); //read directory and start address
+                String[] dirSizeArr = line.split(" ");
+                line = reader.nextLine(); // read addresses array
+                String[] addressesArray = line.split(" ");
+
+                for (String address : addressesArray)
+                    addresses.add(Integer.parseInt(address));
+
+                String filePath = dirSizeArr[0];
+                ArrayList<String> path = Utils.getPath(filePath);
+                path_builder.append("root/");
+
+                for (int i = 1; i < path.size(); i++) {
+                    String folder = path.get(i);
+                    path_builder.append(folder);
+                    if (i == path.size() - 1) {
+                        manualAllocate(filePath, addresses);
+                    } else {
+                        if (!pathExists(path_builder.toString())) {
+                            createFolder(path_builder.toString());
+                        }
+                        path_builder.append("/");
+                    }
+                }
+                addresses.clear();
+            }
         }
         System.out.println("Done vfs");
     }
 
     public static void main(String[] args) throws Exception {
 
-        VFS vfs = new VFS(new LinkedAllocation(20));
+        VFS vfs = new VFS(new IndexedAllocation(20));
         vfs.createFile("root/p1.txt", 3);
         vfs.createFile("root/p2.txt", 4);
         vfs.createFolder("root/p3f");
@@ -243,5 +288,6 @@ public class VFS {
         vfs.displayDiskStatus();
         vfs.fileWriter();
         vfs.fileReader();
+
     }
 }

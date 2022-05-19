@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
@@ -87,4 +86,23 @@ public class LinkedAllocation extends IAllocator {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public ArrayList<IBlock> manualAllocate(ArrayList<Integer> blocks) {
+        ArrayList<IBlock> fileBlocks = new ArrayList<>();
+        Block startBlock = new Block(blocks.get(0), null);
+        Block prev = startBlock;
+        for (int i = 1; i < blocks.size() - 1; i++) {
+            Block curr = new Block(blocks.get(i), null);
+            prev.next = curr;
+            fileBlocks.add(prev);
+            prev = curr;
+        }
+        prev.next = new Block(blocks.get(blocks.size() - 1), null);
+        fileBlocks.add(prev);
+        prev = prev.next;
+        fileBlocks.add(prev);
+        return fileBlocks;
+    }
+
 }

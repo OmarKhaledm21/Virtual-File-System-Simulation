@@ -1,6 +1,5 @@
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 public class IndexedAllocation extends IAllocator {
     static class Block implements IBlock {
@@ -16,7 +15,7 @@ public class IndexedAllocation extends IAllocator {
         @Override
         public String toString() {
             StringBuilder indices = new StringBuilder();
-            for (Integer integer : nextIndex){
+            for (Integer integer : nextIndex) {
                 indices.append(String.valueOf(integer)).append(" ");
             }
 
@@ -49,7 +48,7 @@ public class IndexedAllocation extends IAllocator {
             blocks.add(nextBlock);
             size--;
         }
-        return new Object[]{startIndex,blocks};
+        return new Object[]{startIndex, blocks};
     }
 
     @Override
@@ -76,7 +75,7 @@ public class IndexedAllocation extends IAllocator {
             writer.write(blocks.get(0).startIndex + "\n");
             StringBuilder indices = new StringBuilder();
             indices.append(blocks.get(0).startIndex).append(" ");
-            for (Integer integer : blocks.get(0).nextIndex){
+            for (Integer integer : blocks.get(0).nextIndex) {
                 indices.append(String.valueOf(integer)).append(" ");
             }
             writer.write(indices.toString());
@@ -88,12 +87,15 @@ public class IndexedAllocation extends IAllocator {
     }
 
     @Override
-    public void manualAllocate(int address, ArrayList<Integer> blocks) {
-        Block startBlock = new Block(address);
+    public ArrayList<IBlock> manualAllocate(ArrayList<Integer> blocks) {
+        ArrayList<IBlock> fileBlocks = new ArrayList<>();
+        Block startBlock = new Block(blocks.get(0));
         startBlock.nextIndex = blocks;
-        for(int blockAddr: blocks){
+        for (int blockAddr : blocks) {
             disk.set(blockAddr, new Block(blockAddr));
+            fileBlocks.add(new Block(blockAddr));
         }
+        return fileBlocks;
     }
 
     //    public static void main(String[] args) throws Exception {

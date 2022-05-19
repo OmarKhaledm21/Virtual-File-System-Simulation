@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class IAllocator {
     interface IBlock { }
@@ -54,7 +53,7 @@ public abstract class IAllocator {
 
     public abstract void writeUtil(Object[] obj);
     
-    public abstract void manualAllocate(int address, ArrayList<Integer> blocks);
+    public abstract ArrayList<IBlock> manualAllocate(ArrayList<Integer> blocks);
 
     public void displayDiskStatus() {
         System.out.println("Empty space left = " + this.freeBlocks);

@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class IndexedAllocation extends IAllocator {
     static class Block implements IBlock {
@@ -83,6 +84,15 @@ public class IndexedAllocation extends IAllocator {
             writer.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void manualAllocate(int address, ArrayList<Integer> blocks) {
+        Block startBlock = new Block(address);
+        startBlock.nextIndex = blocks;
+        for(int blockAddr: blocks){
+            disk.set(blockAddr, new Block(blockAddr));
         }
     }
 

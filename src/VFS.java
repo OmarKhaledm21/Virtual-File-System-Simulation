@@ -211,6 +211,7 @@ public class VFS {
 
         }else{//TODO SAME AS THE ABOVE BUT FOR INDEXED
             this.allocator = new IndexedAllocation(disk_size);
+            
         }
         System.out.println("Done vfs");
     }

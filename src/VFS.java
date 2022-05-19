@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class VFS {
-    private final Folder root;
+    private Folder root;
     private IAllocator allocator;
 
     public VFS(IAllocator allocator) {
@@ -149,19 +149,65 @@ public class VFS {
         }
     }
 
-    public void fileReader() throws IOException {
+    public void fileReader() throws Exception {
+        System.out.println("Reading from DiskStructure.vfs");
+        this.root = new Folder("root/", "root");
         FileInputStream file_reader = new FileInputStream(Utils.fileLocation);
         Scanner reader = new Scanner(file_reader);
-        String allocation_method = reader.next();
-        String total_disk_size_line = reader.next();
+        String allocation_method = reader.nextLine();
+        String total_disk_size_line = reader.nextLine();
         String disk_size_filter = total_disk_size_line.substring(total_disk_size_line.indexOf(":")+1);
 
         int disk_size = Integer.parseInt(disk_size_filter);
-        if(allocation_method.equals("linked_allocation")){
+
+
+        System.out.println(allocation_method);
+        System.out.println(total_disk_size_line);
+
+        ArrayList<String> dirs = new ArrayList<>();
+        ArrayList<String> start_end_address = new ArrayList<>();
+        if(allocation_method.equals("linked_allocation")){ // WE START TO READ LINKED ALLOCATION FILE FORMAT
             this.allocator = new LinkedAllocation(disk_size);
-        }else{
+            int le =2;
+            while(reader.hasNext()){
+                String dir = reader.nextLine();
+                if(le%2==0) {
+                    int stop = dir.indexOf(" ");
+                    dir = dir.substring(0, stop);
+                    dirs.add(dir);
+                }else{
+                    start_end_address.add(dir);
+                }
+                le++;
+            }
+            System.out.println(dirs);
+            System.out.println(start_end_address);
+            /**
+             * INITIALIZE SYSTEM WITH DATA FROM DiskStructure.vfs */
+            for(int i=0; i<dirs.size(); i++)
+            {
+                ArrayList<String> path = Utils.getPath(dirs.get(i));
+                StringBuilder path_builder = new StringBuilder();
+                path_builder.append("root/");
+                for(int j=1; j<path.size(); j++){
+                    path_builder.append(path.get(j));
+                    if(j== path.size()-1){
+                        createFile(dirs.get(i),1);
+                    }else{
+                        if(!pathExists(path_builder.toString())) {
+                            createFolder(path_builder.toString());
+
+                        }
+                        path_builder.append("/");
+                    }
+
+                }
+            }
+
+        }else{//TODO SAME AS THE ABOVE BUT FOR INDEXED
             this.allocator = new IndexedAllocation(disk_size);
         }
+        System.out.println("Done vfs");
     }
 
     public static void main(String[] args) throws Exception {

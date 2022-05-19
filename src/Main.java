@@ -11,6 +11,7 @@ public class Main {
         VFS vfs = new VFS(new LinkedAllocation(1));
 
         int choice = scanner.nextInt();
+        scanner.nextLine();
         if (choice == 1) {
             vfs.fileReader();
         }
@@ -23,18 +24,27 @@ public class Main {
             scanner.nextLine();
             if (choice == 1) {
                 vfs = new VFS(new LinkedAllocation(disk_space));
-            }else{
+            } else {
                 vfs = new VFS(new IndexedAllocation(disk_space));
             }
         }
 
-        System.out.println("Enter exit to quit\n");
+        Scanner scanner1 = new Scanner(System.in);
+        System.out.println("**************************");
+        System.out.println("Hello There!\n" +
+                "Please Enter One Of the Following Commands!\n" +
+                "- CreateFile -> File Path -> File Size\n" +
+                "- Create Folder -> Folder Path\n" +
+                "- Delete Folder (File) -> Folder (File) Path\n" +
+                "- DisplayDiskStructure\n" +
+                "- DisplayDiskStatus");
+        System.out.println("Enter exit to quit");
         String command_buffer = null;
         boolean flag = true;
         while (flag) {
-            command_buffer= scanner.nextLine();
+            command_buffer = scanner.nextLine();
             String[] commands = command_buffer.split(" ");
-            switch (commands[0].toLowerCase()){
+            switch (commands[0].toLowerCase()) {
                 case "exit":
                     flag = false;
                     vfs.fileWriter();
@@ -57,7 +67,18 @@ public class Main {
                 case "displaydiskstructure":
                     vfs.displayDiskStructure();
                     break;
+                default:
+                    //System.out.println("Wrong Command!");
+                    break;
             }
+            System.out.println("Nice Now Enter One Of the Following Commands!\n" +
+                    "- CreateFile -> File Path -> File Size\n" +
+                    "- Create Folder -> Folder Path\n" +
+                    "- Delete Folder (File) -> Folder (File) Path\n" +
+                    "- DisplayDiskStructure\n" +
+                    "- DisplayDiskStatus");
+            System.out.println("Enter exit to quit");
+
         }
 
     }

@@ -128,9 +128,10 @@ public class VFS {
         this.allocator.displayDiskStatus();
     }
 
-    public void displayDiskStructure(){
-        displayDiskStructure(this.root,0);
+    public void displayDiskStructure() {
+        displayDiskStructure(this.root, 0);
     }
+
     public void displayDiskStructure(AbstractFile root, int level) {
         for (int i = 0; i < level; i++)
             System.out.print("  ");
@@ -171,6 +172,7 @@ public class VFS {
     }
 
     public void fileReader() throws Exception {
+        int totalAllocated = 0;
         System.out.println("Reading from DiskStructure.vfs");
         this.root = new Folder("root/", "root");
         FileInputStream file_reader = new FileInputStream(Utils.fileLocation);
@@ -211,13 +213,15 @@ public class VFS {
             for (int i = 0; i < dirs.size(); i++) {
                 ArrayList<Integer> addresses = Utils.getAddressesFromFile(start_end_address.get(i)); //TODO This contains addresses of blocks for next created file
                 int dirSize = addresses.size();
+                totalAllocated += dirSize;
                 ArrayList<String> path = Utils.getPath(dirs.get(i));
                 StringBuilder path_builder = new StringBuilder();
                 path_builder.append("root/");
                 for (int j = 1; j < path.size(); j++) {
                     path_builder.append(path.get(j));
                     if (j == path.size() - 1) {
-                        manualAllocate(dirs.get(i), addresses); //Here you create the file pointed to by the previous TODO so u must implement func to take this seq of addresses and use it
+                        manualAllocate(dirs.get(i), addresses);//Here you create the file pointed to by the previous TODO so u must implement func to take this seq of addresses and use it
+
                     } else {
                         if (!pathExists(path_builder.toString())) {
                             createFolder(path_builder.toString());
@@ -238,6 +242,7 @@ public class VFS {
                 String[] dirSizeArr = line.split(" ");
                 line = reader.nextLine(); // read addresses array
                 String[] addressesArray = line.split(" ");
+                totalAllocated += addressesArray.length;
 
                 for (String address : addressesArray)
                     addresses.add(Integer.parseInt(address));
@@ -261,6 +266,8 @@ public class VFS {
                 addresses.clear();
             }
         }
+        this.allocator.allocatedBlocks = totalAllocated;
+        this.allocator.freeBlocks = this.allocator.freeBlocks - totalAllocated;
         System.out.println("Done vfs");
     }
 

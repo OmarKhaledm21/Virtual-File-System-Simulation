@@ -17,19 +17,23 @@ public class Main {
         }
         if (choice == 2) {
             System.out.println("1- Linked Allocation.\n" +
-                    "2- Indexed Allocation.\n");
+                    "2- Indexed Allocation.\n" +
+                    "3- Contiguous Allocation\n");
             choice = scanner.nextInt();
             System.out.println("Enter disk size:");
             int disk_space = scanner.nextInt();
             scanner.nextLine();
             if (choice == 1) {
                 vfs = new VFS(new LinkedAllocation(disk_space));
-            } else {
+            } else if(choice == 2){
                 vfs = new VFS(new IndexedAllocation(disk_space));
+            }else if(choice == 3){
+                vfs = new VFS(new ContiguousAllocation(disk_space));
+            }else{
+                System.out.println("Invalid choice!\n");
             }
         }
 
-        Scanner scanner1 = new Scanner(System.in);
         System.out.println("**************************");
         System.out.println("Hello There!\n" +
                 "Please Enter One Of the Following Commands!\n" +

@@ -47,6 +47,7 @@ public class VFS {
             }
             currentFolder.add(file);
         }
+        System.out.println("File Created!");
     }
 
     public void manualAllocate(String fullPath, ArrayList<Integer> blocks) throws Exception {
@@ -78,7 +79,8 @@ public class VFS {
             for (int i = 1; i < tempPath.size() - 1; i++) {
                 currentFolder = (Folder) currentFolder.getDir(tempPath.get(i));
             }
-            currentFolder.addFolder(folder); // hyt7at k2eno file brdo :( maybe hn3ml abstract class ydom el file w el folder?
+            currentFolder.addFolder(folder);
+            System.out.println("Folder Created!");
         } else {
             throw new Exception("Folder Already Exists!");
         }
@@ -98,7 +100,7 @@ public class VFS {
             currentFolder.fileSize -= file.fileSize;
             allocator.deallocate(file.getAddress(), file.getFileSize());
             currentFolder.remove(fileName);
-            //System.out.println("File Removed");
+            System.out.println("File Removed");
         } else {
             throw new Exception("File Was Not Found!");
         }
@@ -150,8 +152,10 @@ public class VFS {
         FileWriter writer = new FileWriter(Utils.fileLocation);
         if (this.allocator instanceof LinkedAllocation) {
             writer.write("linked_allocation\n");
-        } else {
+        } else if(this.allocator instanceof IndexedAllocation){
             writer.write("indexed_allocation\n");
+        }else{
+            writer.write("contiguous_allocation\n");
         }
         writer.write("disk_size:" + total_disk_size + "\n");
         writer.close();
@@ -233,7 +237,7 @@ public class VFS {
                 }
             }
 
-        } else {//TODO SAME AS THE ABOVE BUT FOR INDEXED
+        } else if(allocation_method.equals("indexed_allocation")) {//TODO SAME AS THE ABOVE BUT FOR INDEXED
             this.allocator = new IndexedAllocation(disk_size);
             ArrayList<Integer> addresses = new ArrayList<>();
             while (reader.hasNext()) {
@@ -265,6 +269,42 @@ public class VFS {
                 }
                 addresses.clear();
             }
+        }else{
+            this.allocator = new ContiguousAllocation(disk_size);
+            int le = 2;
+            while (reader.hasNext()) {
+                String dir = reader.nextLine();
+                if (le % 2 == 0) {
+                    int stop = dir.indexOf(" ");
+                    dir = dir.substring(0, stop);
+                    dirs.add(dir);
+                } else {
+                    start_end_address.add(dir);
+                }
+                le++;
+            }
+            System.out.println(dirs);
+            System.out.println(start_end_address);
+            for (int i = 0; i < dirs.size(); i++) {
+                ArrayList<Integer> addresses = Utils.getAddressesFromFile(start_end_address.get(i)); //TODO This contains addresses of blocks for next created file
+                int dirSize = addresses.size();
+                totalAllocated += dirSize;
+                ArrayList<String> path = Utils.getPath(dirs.get(i));
+                StringBuilder path_builder = new StringBuilder();
+                path_builder.append("root/");
+                for (int j = 1; j < path.size(); j++) {
+                    path_builder.append(path.get(j));
+                    if (j == path.size() - 1) {
+                        manualAllocate(dirs.get(i), addresses);//Here you create the file pointed to by the previous TODO so u must implement func to take this seq of addresses and use it
+                    } else {
+                        if (!pathExists(path_builder.toString())) {
+                            createFolder(path_builder.toString());
+                        }
+                        path_builder.append("/");
+                    }
+
+                }
+            }
         }
         this.allocator.allocatedBlocks = totalAllocated;
         this.allocator.freeBlocks = this.allocator.freeBlocks - totalAllocated;
@@ -273,31 +313,8 @@ public class VFS {
 
     public static void main(String[] args) throws Exception {
 
-        VFS vfs = new VFS(new IndexedAllocation(20));
-        vfs.createFile("root/p1.txt", 3);
-        vfs.createFile("root/p2.txt", 4);
-        vfs.createFolder("root/p3f");
-        vfs.createFolder("root/p3f/pxy");
-        vfs.createFile("root/p3f/pxy/zip.folder", 2);
-
-
-        vfs.createFile("root/p3f/p22.txt", 4);
-
-        vfs.deleteFile("root/p1.txt");
-
-        vfs.createFile("root/p1edit.txt", 3);
-
-        vfs.displayDiskStructure(vfs.root, 0);
-        vfs.root.ls();
-        Folder f = (Folder) vfs.root.getSub_dir().get("p3f");
-        f.ls();
-        vfs.root.ls();
-
-        //vfs.deleteFolder("root/p3f");
-        vfs.root.ls();
-        vfs.displayDiskStatus();
-        vfs.fileWriter();
+        VFS vfs = new VFS(new ContiguousAllocation(20));
         vfs.fileReader();
-
+        vfs.displayDiskStatus();
     }
 }

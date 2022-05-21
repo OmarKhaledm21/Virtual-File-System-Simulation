@@ -56,9 +56,12 @@ public class IndexedAllocation extends IAllocator {
         Block current = (Block) disk.get(address);
         freeBlocks += size;
         allocatedBlocks -= size;
-        while (size - 1 > 0) {
-            int tempIndex = current.nextIndex.size();
-            current.nextIndex.remove(tempIndex - 1);
+        
+        disk.set(address, null); //free start block
+        size--;
+        while (size > 0) {
+            int tempIndex = current.nextIndex.get(0);
+            current.nextIndex.remove(0);
             disk.set(tempIndex, null);
             size--;
         }

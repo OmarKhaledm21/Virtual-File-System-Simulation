@@ -152,9 +152,9 @@ public class VFS {
         FileWriter writer = new FileWriter(Utils.fileLocation);
         if (this.allocator instanceof LinkedAllocation) {
             writer.write("linked_allocation\n");
-        } else if(this.allocator instanceof IndexedAllocation){
+        } else if (this.allocator instanceof IndexedAllocation) {
             writer.write("indexed_allocation\n");
-        }else{
+        } else {
             writer.write("contiguous_allocation\n");
         }
         writer.write("disk_size:" + total_disk_size + "\n");
@@ -237,7 +237,7 @@ public class VFS {
                 }
             }
 
-        } else if(allocation_method.equals("indexed_allocation")) {//TODO SAME AS THE ABOVE BUT FOR INDEXED
+        } else if (allocation_method.equals("indexed_allocation")) {
             this.allocator = new IndexedAllocation(disk_size);
             ArrayList<Integer> addresses = new ArrayList<>();
             while (reader.hasNext()) {
@@ -269,7 +269,7 @@ public class VFS {
                 }
                 addresses.clear();
             }
-        }else{
+        } else {
             this.allocator = new ContiguousAllocation(disk_size);
             int le = 2;
             while (reader.hasNext()) {

@@ -72,6 +72,9 @@ public class ContiguousAllocation extends IAllocator {
         for(int i=address; i<address+size; i++){
             disk.set(i,null);
         }
+        freeBlocks += size;
+        allocatedBlocks -= size;
+
     }
 
     @Override

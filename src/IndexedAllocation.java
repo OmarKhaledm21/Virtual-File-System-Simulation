@@ -90,10 +90,12 @@ public class IndexedAllocation extends IAllocator {
     public ArrayList<IBlock> manualAllocate(ArrayList<Integer> blocks) {
         ArrayList<IBlock> fileBlocks = new ArrayList<>();
         Block startBlock = new Block(blocks.get(0));
-        startBlock.nextIndex = blocks;
-        for (int blockAddr : blocks) {
-            disk.set(blockAddr, new Block(blockAddr));
-            fileBlocks.add(new Block(blockAddr));
+        blocks.remove(0); //removing duplicate index
+        startBlock.nextIndex = new ArrayList<>(blocks);
+        fileBlocks.add(startBlock);
+        for (int i = 1 ; i < blocks.size();i++) {
+            disk.set(i, new Block(blocks.get(i)));
+            fileBlocks.add(new Block(blocks.get(i)));
         }
         return fileBlocks;
     }

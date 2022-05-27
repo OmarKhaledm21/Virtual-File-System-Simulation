@@ -46,6 +46,7 @@ public class VFS {
                 currentFolder = (Folder) currentFolder.getDir(path.get(i));
             }
             currentFolder.add(file);
+            file.setParentDirectory(currentFolder);
         }
         System.out.println("File Created!");
     }
@@ -64,6 +65,7 @@ public class VFS {
                 currentFolder = (Folder) currentFolder.getDir(path.get(i));
             }
             currentFolder.add(file);
+            file.setParentDirectory(currentFolder);
         }
     }
 
@@ -80,6 +82,7 @@ public class VFS {
                 currentFolder = (Folder) currentFolder.getDir(tempPath.get(i));
             }
             currentFolder.addFolder(folder);
+            folder.setParentDirectory(currentFolder);
             System.out.println("Folder Created!");
         } else {
             throw new Exception("Folder Already Exists!");

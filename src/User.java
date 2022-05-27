@@ -36,9 +36,13 @@ public class User {
         this.userCapabilities = userCapabilities;
     }
 
+
+
     public void grant(String folderPath , String accessRight){
+
         switch (accessRight){
             case "00":
+                this.userCapabilities.remove(folderPath);
                 return;
             case "01":
                 this.userCapabilities.put(folderPath,accessRights.Delete);

@@ -13,10 +13,11 @@ public class File extends AbstractFile {
         blocks = new ArrayList<>();
     }
 
-
     public void setBlocks(ArrayList<IAllocator.IBlock> blocks) {
         this.blocks = blocks;
     }
+
+
 
     public ArrayList<IAllocator.IBlock> getBlocks() {
         return blocks;

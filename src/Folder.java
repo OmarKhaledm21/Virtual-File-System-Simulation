@@ -3,10 +3,24 @@ import java.util.Hashtable;
 
 public class Folder extends AbstractFile {
     private final HashMap<String, AbstractFile> sub_dir;
+                    // Username , Accesses Rights
+    private Hashtable<String, accessRights> users_accessRights;
 
     public Folder(String fullPath, String name) {
         super(fullPath, name, 0, -1);
         sub_dir = new HashMap<>();
+    }
+
+
+
+    public void populatePermissions(){
+         Hashtable<String, User> users = UserManager.getInstance().getUsers();
+         for(var key : users.keySet()){
+             User user = users.get(key);
+             if(user.getUserCapabilities().containsKey(this.getFullPath())){
+                 users_accessRights.put(user.getUsername(), user.getUserCapabilities().get(this.getFullPath()));
+             }
+         }
     }
 
     public void ls() {
@@ -59,4 +73,6 @@ public class Folder extends AbstractFile {
     public HashMap<String, AbstractFile> getSub_dir() {
         return sub_dir;
     }
+
+
 }

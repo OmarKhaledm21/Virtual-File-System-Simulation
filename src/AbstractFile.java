@@ -3,7 +3,7 @@ public abstract class AbstractFile {
     private String fileName;
     protected int fileSize;
     private int address;
-
+    Folder parentDirectory;
 
 
     public AbstractFile(String fullPath, String fileName, int fileSize, int address) {
@@ -18,7 +18,13 @@ public abstract class AbstractFile {
         this.fileName = Utils.getFileName(fullPath);
     }
 
+    public Folder getParentDirectory() {
+        return parentDirectory;
+    }
 
+    public void setParentDirectory(Folder parentDirectory) {
+        this.parentDirectory = parentDirectory;
+    }
 
     public int getAddress() {
         return address;

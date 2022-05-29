@@ -9,6 +9,8 @@ import java.util.List;
 public class Utils {
 
     static String fileLocation = new File("DiskStructure.vfs").getAbsolutePath();
+    static String permissionsFileLocation = new File("capabilities.txt").getAbsolutePath();
+    static String usersFileLocation = new File("user.txt").getAbsolutePath();
 
     static public ArrayList<String> getPath(String path){
         return new ArrayList<>(List.of(path.split("/")));

@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Scanner;
 
 public class VFS {
@@ -34,28 +35,46 @@ public class VFS {
 
     public void createFile(String fullPath, int size) throws Exception {
         /* Allocate then path to createFile of Folder class*/
+        Folder parentDir = getParentDir(fullPath);
+        accessRights folderRights = UserManager.getCurrentUser().getUserCapabilities().get(parentDir.getFullPath());
+        if ( ! (folderRights == accessRights.Create || folderRights == accessRights.CreateDelete) ) {
+            System.out.println("Create Permission Not Granted for this directory!");
+            return;
+        }
         if (!pathExists(fullPath)) {
             Object[] ret = this.allocator.allocate(size);
             int fileAddress = (int) ret[0];
             File file = new File(fullPath, size, fileAddress);
             file.setBlocks((ArrayList<IAllocator.IBlock>) ret[1]);
+
             ArrayList<String> path = Utils.getPath(file.getFullPath());
             Folder currentFolder = root;
             for (int i = 1; i < path.size() - 1; i++) {
                 currentFolder.setFileSize(currentFolder.getFileSize() + size);
                 currentFolder = (Folder) currentFolder.getDir(path.get(i));
             }
+
+
+            UserManager.getCurrentUser().grant(fullPath, folderRights.toString());
             currentFolder.add(file);
             file.setParentDirectory(currentFolder);
+            System.out.println("File Created!");
         }
-        System.out.println("File Created!");
+    }
+
+
+    public Folder getParentDir(String fullPath) {
+        ArrayList<String> path = Utils.getPath(fullPath);
+        Folder currentFolder = root;
+        for (int i = 1; i < path.size() - 1; i++) {
+            currentFolder = (Folder) currentFolder.getDir(path.get(i));
+        }
+        return currentFolder;
     }
 
     public void manualAllocate(String fullPath, ArrayList<Integer> blocks) throws Exception {
         if (!pathExists(fullPath)) {
-
             File file = new File(fullPath, blocks.size(), blocks.get(0));
-
             file.setBlocks(this.allocator.manualAllocate(blocks));
 
             ArrayList<String> path = Utils.getPath(file.getFullPath());
@@ -66,7 +85,9 @@ public class VFS {
             }
             currentFolder.add(file);
             file.setParentDirectory(currentFolder);
+
         }
+
     }
 
     public void createFolder(String path) throws Exception {
@@ -74,6 +95,8 @@ public class VFS {
         // check if folder doesn't already exist
 
         if (!pathExists(path)) {
+
+
             String folderName = Utils.getFileName(path);
             Folder folder = new Folder(path, folderName);
             ArrayList<String> tempPath = Utils.getPath(folder.getFullPath());
@@ -81,9 +104,16 @@ public class VFS {
             for (int i = 1; i < tempPath.size() - 1; i++) {
                 currentFolder = (Folder) currentFolder.getDir(tempPath.get(i));
             }
-            currentFolder.addFolder(folder);
-            folder.setParentDirectory(currentFolder);
-            System.out.println("Folder Created!");
+
+            accessRights folderRights = UserManager.getCurrentUser().getUserCapabilities().get(currentFolder.getFullPath());
+            if (folderRights == accessRights.Create || folderRights == accessRights.CreateDelete) {
+                UserManager.getCurrentUser().grant(path, folderRights.toString());
+                currentFolder.addFolder(folder);
+                folder.setParentDirectory(currentFolder);
+                System.out.println("Folder Created!");
+            } else {
+                System.out.println("Create Permission Not Granted for this directory!");
+            }
         } else {
             throw new Exception("Folder Already Exists!");
         }
@@ -99,11 +129,17 @@ public class VFS {
             for (int i = 1; i < Folders.size() - 1; i++) {
                 currentFolder = (Folder) currentFolder.getDir(Folders.get(i));
             }
-            AbstractFile file = currentFolder.getSub_dir().get(fileName);
-            currentFolder.fileSize -= file.fileSize;
-            allocator.deallocate(file.getAddress(), file.getFileSize());
-            currentFolder.remove(fileName);
-            System.out.println("File Removed");
+
+            accessRights folderRights = UserManager.getCurrentUser().getUserCapabilities().get(currentFolder.getFullPath());
+            if (folderRights == accessRights.Delete || folderRights == accessRights.CreateDelete) {
+                AbstractFile file = currentFolder.getSub_dir().get(fileName);
+                currentFolder.fileSize -= file.fileSize;
+                allocator.deallocate(file.getAddress(), file.getFileSize());
+                currentFolder.remove(fileName);
+                System.out.println("File Removed");
+            } else {
+                System.out.println("Delete Permission Not Granted for this directory!");
+            }
         } else {
             throw new Exception("File Was Not Found!");
         }
@@ -118,12 +154,18 @@ public class VFS {
                 parentFolder = currentFolder;
                 currentFolder = (Folder) currentFolder.getDir(Folders.get(i));
             }
-            HashMap<Integer, Integer> address_size_pairs = currentFolder.deleteDirectory();
-            for (var address : address_size_pairs.keySet()) {
-                allocator.deallocate(address, address_size_pairs.get(address));
+
+            accessRights folderRights = UserManager.getCurrentUser().getUserCapabilities().get(currentFolder.getFullPath());
+            if (folderRights == accessRights.Delete || folderRights == accessRights.CreateDelete) {
+                HashMap<Integer, Integer> address_size_pairs = currentFolder.deleteDirectory();
+                for (var address : address_size_pairs.keySet()) {
+                    allocator.deallocate(address, address_size_pairs.get(address));
+                }
+                parentFolder.remove(currentFolder.getFileName());
+                System.out.println("Folder Removed");
+            } else {
+                System.out.println("Delete Permission Not Granted for this directory!");
             }
-            parentFolder.remove(currentFolder.getFileName());
-            System.out.println("Folder Removed");
         } else {
             throw new Exception("File Was Not Found!");
         }
@@ -176,6 +218,43 @@ public class VFS {
             Object[] writer = new Object[]{root.getFullPath(), ((File) root).getBlocks()};
             this.allocator.writeUtil(writer);
         }
+    }
+
+    public void fileWriterV2(AbstractFile root) throws IOException {
+        if (root instanceof Folder) {
+            Folder folder = (Folder) root;
+
+            for (var child : folder.getSub_dir().entrySet()) {
+                fileWriterV2(child.getValue());
+            }
+        } else if (root instanceof File) {
+            Folder folder = (Folder) root.getParentDirectory();
+            FileWriter writer = new FileWriter(Utils.permissionsFileLocation);
+            writer.write(folder.getFullPath()+" ");
+            Hashtable<String,User> users = UserManager.getInstance().getUsers();
+            for(var user: users.keySet()){
+                User current = users.get(user);
+                if(current.getUserCapabilities().containsKey(folder.getFullPath())){
+                    writer.write(user+" "+current.getUserCapabilities().get(folder.getFullPath()).toString()+" ");
+                }
+            }
+            writer.write("\n");
+            writer.close();
+        }
+    }
+
+    public void userPermissionFileWriter() throws IOException {
+        FileWriter writer = new FileWriter(Utils.usersFileLocation);
+        Hashtable<String,User> usernames = UserManager.getInstance().getUsers();
+        for(var username : usernames.keySet()){
+            writer.write(username+" "+usernames.get(username).getPassword()+"\n");
+        }
+        writer.close();
+        fileWriterV2(this.root);
+    }
+
+    public void userPermissionFileReader(){
+
     }
 
     public void fileReader() throws Exception {
@@ -316,8 +395,23 @@ public class VFS {
 
     public static void main(String[] args) throws Exception {
 
-        VFS vfs = new VFS(new ContiguousAllocation(20));
-        vfs.fileReader();
-        vfs.displayDiskStatus();
+        VFS vfs = new VFS(new LinkedAllocation(20));
+        UserManager.getInstance();
+        UserManager.getInstance().login("admin","admin");
+        UserManager.getInstance().createUser("omar", "123");
+
+        vfs.createFile("root/p1.txt", 2);
+        vfs.createFolder("root/f1");
+
+
+        UserManager.getInstance().grantPermission("omar","root/",accessRights.Create.toString());
+        UserManager.getInstance().grantPermission("omar","root/f1",accessRights.CreateDelete.toString());
+
+        UserManager.getInstance().login("omar","123");
+
+        vfs.createFolder("root/f1/f2");
+        vfs.deleteFile("root/p1.txt");
+        vfs.displayDiskStructure();
+        vfs.userPermissionFileWriter();
     }
 }

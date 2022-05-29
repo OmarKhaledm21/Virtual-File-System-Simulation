@@ -7,11 +7,12 @@ public class UserManager {
     private final Hashtable<String, User> users;
 
     private UserManager() {
-        this.currentUser = null;
         users = new Hashtable<>();
         User admin = new User("admin", "admin");
-        this.grantPermission(admin.getUsername(), "root/", "11");
         users.put("admin", admin);
+        currentUser = admin;
+        this.grantPermission(admin.getUsername(), "root/", "11");
+
     }
 
     public static UserManager getInstance() {
@@ -30,8 +31,16 @@ public class UserManager {
     }
 
     public void createUser(String username, String password) {
-        User user = new User(username, password);
-        this.users.put(username, user);
+        if(currentUser.getUsername().equals("admin")){
+            User user = new User(username, password);
+            this.users.put(username, user);
+        }
+    }
+
+    public void deleteUser(String username){
+        if(currentUser.getUsername().equals("admin")){
+            this.users.remove(username);
+        }
     }
 
     public User login(String username, String password) {

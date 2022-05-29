@@ -220,16 +220,16 @@ public class VFS {
         }
     }
 
-    public void fileWriterV2(AbstractFile root) throws IOException {
+    public void fileWriterV2(AbstractFile root,FileWriter writer) throws IOException {
         if (root instanceof Folder) {
             Folder folder = (Folder) root;
 
             for (var child : folder.getSub_dir().entrySet()) {
-                fileWriterV2(child.getValue());
+                fileWriterV2(child.getValue(),writer);
             }
         } else if (root instanceof File) {
             Folder folder = (Folder) root.getParentDirectory();
-            FileWriter writer = new FileWriter(Utils.permissionsFileLocation);
+
             writer.write(folder.getFullPath()+" ");
             Hashtable<String,User> users = UserManager.getInstance().getUsers();
             for(var user: users.keySet()){
@@ -239,7 +239,6 @@ public class VFS {
                 }
             }
             writer.write("\n");
-            writer.close();
         }
     }
 
@@ -250,7 +249,9 @@ public class VFS {
             writer.write(username+" "+usernames.get(username).getPassword()+"\n");
         }
         writer.close();
-        fileWriterV2(this.root);
+        writer = new FileWriter(Utils.permissionsFileLocation);
+        fileWriterV2(this.root,writer);
+        writer.close();
     }
 
     public void userPermissionFileReader(){
@@ -410,6 +411,7 @@ public class VFS {
         UserManager.getInstance().login("omar","123");
 
         vfs.createFolder("root/f1/f2");
+        vfs.createFile("root/f1/f2/hhgh.txt",2);
         vfs.deleteFile("root/p1.txt");
         vfs.displayDiskStructure();
         vfs.userPermissionFileWriter();

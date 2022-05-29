@@ -62,6 +62,14 @@ public class UserManager {
         currentUser = null;
     }
 
+    public void loadPerm(String username, String folderPath, String accessRight) {
+        User user = users.get(username);
+        if (user == null) {
+            return;
+        }
+        user.grant(folderPath, accessRight);
+    }
+
     public void grantPermission(String username, String folderPath, String accessRight) {
         if (currentUser.getUsername().equals("admin")) {
             User user = users.get(username);

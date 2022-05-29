@@ -111,6 +111,7 @@ public class VFS {
                 currentFolder.addFolder(folder);
                 folder.setParentDirectory(currentFolder);
                 System.out.println("Folder Created!");
+                UserManager.getInstance().loadPerm("admin", path, "11");
             } else {
                 System.out.println("Create Permission Not Granted for this directory!");
             }
@@ -254,7 +255,38 @@ public class VFS {
         writer.close();
     }
 
-    public void userPermissionFileReader(){
+    public void userPermissionFileReader() throws IOException{
+        FileInputStream usersReader = new FileInputStream(Utils.usersFileLocation);
+        Scanner fileReader = new Scanner(usersReader);
+        while(fileReader.hasNext()){
+            String userLine = fileReader.nextLine();
+            String[] userInfo = userLine.split(" ");
+            UserManager.getInstance().createUser(userInfo[0], userInfo[1]);
+        }
+        usersReader.close();
+        fileReader.close();
+        FileInputStream permsReader = new FileInputStream(Utils.permissionsFileLocation);
+        fileReader = new Scanner(permsReader);
+        while (fileReader.hasNext()) {
+            String[] lineInfo = fileReader.nextLine().split(" ");
+            String currentPath = lineInfo[0];
+            for(int i = 1; i < lineInfo.length; i+=2){
+                String user = lineInfo[i];
+                String perms = lineInfo[i+1];
+                UserManager.getInstance().loadPerm(user, currentPath, perms);
+                UserManager.getInstance().loadPerm("admin", currentPath, "11");
+                ArrayList<String> pathArr = Utils.getPath(currentPath);
+                StringBuilder pathBuilder = new StringBuilder();
+                for(int j = 0; j < pathArr.size()-1; j++){
+                    pathBuilder.append(pathArr.get(j));
+                    if(j != pathArr.size()-2)
+                        pathBuilder.append("/");
+                    UserManager.getInstance().loadPerm(user, pathBuilder.toString(), perms);
+                    //admin should have access to everythign obv smh
+                    UserManager.getInstance().loadPerm("admin", pathBuilder.toString(), "11");
+                }
+            }
+        }
 
     }
 
@@ -398,22 +430,24 @@ public class VFS {
 
         VFS vfs = new VFS(new LinkedAllocation(20));
         UserManager.getInstance();
-        UserManager.getInstance().login("admin","admin");
-        UserManager.getInstance().createUser("omar", "123");
+        vfs.userPermissionFileReader();
 
-        vfs.createFile("root/p1.txt", 2);
-        vfs.createFolder("root/f1");
+        // UserManager.getInstance().login("admin","admin");
+        // UserManager.getInstance().createUser("omar", "123");
+
+        // vfs.createFile("root/p1.txt", 2);
+        // vfs.createFolder("root/f1");
 
 
-        UserManager.getInstance().grantPermission("omar","root/",accessRights.Create.toString());
-        UserManager.getInstance().grantPermission("omar","root/f1",accessRights.CreateDelete.toString());
+        // UserManager.getInstance().grantPermission("omar","root/",accessRights.Create.toString());
+        // UserManager.getInstance().grantPermission("omar","root/f1",accessRights.CreateDelete.toString());
 
-        UserManager.getInstance().login("omar","123");
+        // UserManager.getInstance().login("omar","123");
 
-        vfs.createFolder("root/f1/f2");
-        vfs.createFile("root/f1/f2/hhgh.txt",2);
-        vfs.deleteFile("root/p1.txt");
-        vfs.displayDiskStructure();
-        vfs.userPermissionFileWriter();
+        // vfs.createFolder("root/f1/f2");
+        // vfs.createFile("root/f1/f2/hhgh.txt",2);
+        // vfs.deleteFile("root/p1.txt");
+        // vfs.displayDiskStructure();
+        // vfs.userPermissionFileWriter();
     }
 }

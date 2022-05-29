@@ -41,7 +41,12 @@ public class Main {
                 "- Create Folder -> Folder Path\n" +
                 "- Delete Folder (File) -> Folder (File) Path\n" +
                 "- DisplayDiskStructure\n" +
-                "- DisplayDiskStatus");
+                "- DisplayDiskStatus\n" +
+                "- TellUser\n" +
+                "- CUser -> Username -> Password\n" +
+                "- Grant -> Username -> FullPath -> Bits\n" +
+                "- Login -> Username -> Password\n");
+
         System.out.println("Enter exit to quit");
         String command_buffer = null;
         boolean flag = true;
@@ -71,6 +76,19 @@ public class Main {
                         break;
                     case "displaydiskstructure":
                         vfs.displayDiskStructure();
+                        break;
+
+                    case "telluser":
+                        UserManager.getInstance().tellUser();
+                        break;
+                    case "cuser":
+                        UserManager.getInstance().createUser(commands[1],commands[2]);
+                        break;
+                    case "grant":
+                        UserManager.getInstance().grantPermission(commands[1],commands[2],commands[3]);
+                        break;
+                    case "login":
+                        UserManager.getInstance().login(commands[1],commands[2]);
                         break;
                     default:
                         //System.out.println("Wrong Command!");

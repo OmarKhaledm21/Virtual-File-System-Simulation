@@ -34,6 +34,8 @@ public class UserManager {
         if(currentUser.getUsername().equals("admin")){
             User user = new User(username, password);
             this.users.put(username, user);
+        }else{
+            System.out.println("Admin only can create users!");
         }
     }
 
@@ -70,6 +72,10 @@ public class UserManager {
         } else {
             System.out.println("A7a 7aramy tany!");
         }
+    }
+
+    public void tellUser(){
+        System.out.println(currentUser.getUsername());
     }
 
 }

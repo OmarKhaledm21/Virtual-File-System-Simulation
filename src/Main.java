@@ -8,6 +8,7 @@ public class Main {
 
         System.out.println("1- Read disk structure from DiskStructure.vfs file\n" +
                 "2- Start your own new structure\n");
+        UserManager.getInstance();
         VFS vfs = new VFS(new LinkedAllocation(1));
 
         int choice = scanner.nextInt();
@@ -100,7 +101,11 @@ public class Main {
                             "- Create Folder -> Folder Path\n" +
                             "- Delete Folder (File) -> Folder (File) Path\n" +
                             "- DisplayDiskStructure\n" +
-                            "- DisplayDiskStatus");
+                            "- DisplayDiskStatus\n" +
+                            "- TellUser\n" +
+                            "- CUser -> Username -> Password\n" +
+                            "- Grant -> Username -> FullPath -> Bits\n" +
+                            "- Login -> Username -> Password\n");
                     System.out.println("Enter exit to quit");
                 }
             } catch (Exception e) {

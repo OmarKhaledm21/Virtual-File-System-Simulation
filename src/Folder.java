@@ -4,7 +4,6 @@ import java.util.Hashtable;
 public class Folder extends AbstractFile {
     private final HashMap<String, AbstractFile> sub_dir;
 
-
     public Folder(String fullPath, String name) {
         super(fullPath, name, 0, -1);
         sub_dir = new HashMap<>();
@@ -60,6 +59,5 @@ public class Folder extends AbstractFile {
     public HashMap<String, AbstractFile> getSub_dir() {
         return sub_dir;
     }
-
 
 }

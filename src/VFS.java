@@ -206,6 +206,7 @@ public class VFS {
         writer.write("disk_size:" + total_disk_size + "\n");
         writer.close();
         fileWriter(this.root);
+        userPermissionFileWriter();
     }
 
     public void fileWriter(AbstractFile root) throws IOException {
@@ -221,6 +222,8 @@ public class VFS {
         }
     }
 
+    ArrayList<String> visitedFiles = new ArrayList<>();
+
     public void fileWriterV2(AbstractFile root,FileWriter writer) throws IOException {
         if (root instanceof Folder) {
             Folder folder = (Folder) root;
@@ -230,7 +233,9 @@ public class VFS {
             }
         } else if (root instanceof File) {
             Folder folder = (Folder) root.getParentDirectory();
-
+            if(visitedFiles.contains(folder.getFullPath())){
+                return;
+            }
             writer.write(folder.getFullPath()+" ");
             Hashtable<String,User> users = UserManager.getInstance().getUsers();
             for(var user: users.keySet()){
@@ -240,6 +245,7 @@ public class VFS {
                 }
             }
             writer.write("\n");
+            visitedFiles.add(folder.getFullPath());
         }
     }
 
@@ -424,6 +430,7 @@ public class VFS {
         this.allocator.allocatedBlocks = totalAllocated;
         this.allocator.freeBlocks = this.allocator.freeBlocks - totalAllocated;
         System.out.println("Done vfs");
+        userPermissionFileReader();
     }
 
     public static void main(String[] args) throws Exception {

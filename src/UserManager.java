@@ -52,7 +52,7 @@ public class UserManager {
             if (user.getPassword().equals(password)) {
                 currentUser = user;
             } else {
-                System.out.println("A7a 7aramy!!!!!!!");
+                System.out.println("Wrong username or password");
             }
         }
         return currentUser;
@@ -78,7 +78,7 @@ public class UserManager {
             }
             user.grant(folderPath, accessRight);
         } else {
-            System.out.println("A7a 7aramy tany!");
+            System.out.println("Sorry only admin can grant permissions");
         }
     }
 
